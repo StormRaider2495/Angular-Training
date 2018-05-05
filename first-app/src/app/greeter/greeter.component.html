@@ -1,0 +1,8 @@
+<h3>Greeting</h3>
+<div class="container-fluid">
+    
+</div>
+<input type="text" #textRef (change)="onTextChange(textRef.value)">
+<button class="btn btn-info" type="submit" (click)="onGreetClick()"> CLICK</button>
+<hr> Value
+<label>{{greetMessage}}</label>
