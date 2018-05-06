@@ -1,32 +1,33 @@
 <h1>
-
   Bug Tracker</h1>
 <hr>
 <section class="stats">
-  <span>{{this.closedCount}}</span>
+  <span>{{this.bugList | closedCount}}</span>
   <span> / </span>
   <span>{{this.bugList.length}}</span>
 </section>
 <section class="sort">
   <label for="">Order By :</label>
-  <select name="" id="">
-    <option value=""></option>
-    <option value=""></option>
+  <select name="" id="" (change)="bugSortby = $event.target.value">
+    <option value="details">Name</option>
+    <option value="isClosed">Closed Status</option>
   </select>
   <label for="">Descending ? :</label>
-  <input type="checkbox" name="" id="">
+  <input type="checkbox" name="" id="" (change)="bugSortDescendingOrder=$event.target.checked">
 </section>
 <section class="edit">
   <label for="">Bug Name :</label>
-  <input type="text" name="" id="" #entryBug>
-  <input type="button" value="Create New" (click)="onCreateNewClick(entryBug.value)">
+  <input type="text" name="" id="" #entryBug [(ngModel)]="newBugName">
+  <input type="button" value="Create New" (click)="onCreateNewClick(entryBug.value)" [disabled]="isEmpty()">
 </section>
 <section class="list">
   <ol>
-    <li *ngFor = "let bug of bugList; let i = index;">
-        <span class="bugname" [innerHTML]="bug.details" [ngClass]="{closed: bug.isClosed}"></span>
-        <div class="datetime" [innerHTML]="bug.createdTime"></div>
-        <button (click)="toggleBugStatus(i)">{{bug.isClosed ? 'Open' : 'Close'}}</button>
+    <li *ngFor="let bug of (bugList| sortPipe:bugSortBy:bugSortDescendingOrder)">
+      <span class="bugname" [ngClass]="{closed: bug.isClosed}">
+        {{ bug.details | trimtext:30}}
+      </span>
+      <div class="datetime">{{bug.createdTime | date}}</div>
+      <button (click)="toggleBugStatus(bug)">{{bug.isClosed ? 'Open' : 'Close'}}</button>
     </li>
   </ol>
   <input type="button" value="Remove Closed" (click)="onRemoveClosedClick()">

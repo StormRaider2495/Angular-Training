@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { BugOperationsService } from '../bug-operations.service';
 
 @Component({
   selector: 'app-tracker',
@@ -7,34 +8,58 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TrackerComponent implements OnInit {
   bugList: Array<any> = [];
-  closedCount: number = 0;
-  constructor() { }
+  closedCount = 0;
+  newBugName: string;
 
-  ngOnInit() {
-  }
+  bugSortBy = 'details';
+  bugSortDescendingOrder = false;
 
-  onCreateNewClick(value) {
-    console.log(value);
+  constructor(private bugOperations: BugOperationsService) {
     this.bugList.push({
-      'details': value,
-      'isClosed': false,
-      'createdTime': new Date()
+      details: 'Server communication failure',
+      isClosed: false
+    });
+    this.bugList.push({
+      details: 'Data integrity checks failed',
+      isClosed: true
+    });
+    this.bugList.push({
+      details: 'User actions not recognized',
+      isClosed: true
+    });
+    this.bugList.push({
+      details: 'Application not responding',
+      isClosed: false
     });
   }
 
-  toggleBugStatus(index) {
-    console.log(index);
-    this.bugList[index]['isClosed'] = !this.bugList[index]['isClosed'];
-    this.bugList[index]['isClosed'] ? this.closedCount++ : this.closedCount--;
+  ngOnInit() {}
+
+  onCreateNewClick(value) {
+    // const newBug = {
+    //   details: this.newBugName,
+    //   isClosed: false,
+    //   createdTime: new Date()
+    // };
+    // this.bugList = [...this.bugList, newBug];
+    // this.newBugName = '';
+    this.bugList = [...this.bugList, this.bugOperations.createNew(value)];
+    this.newBugName = '';
+  }
+
+  toggleBugStatus(bugItem) {
+    // bug['isClosed'] = !bug['isClosed'];
+    const toggleBug: any = this.bugOperations.toggleBugStatus(bugItem);
+    this.bugList = this.bugList.map(bug => {
+      return bug.details === toggleBug.details ? toggleBug : bug;
+    });
   }
 
   onRemoveClosedClick() {
-    for (let index = 0; index < this.bugList.length; index++) {
-      if (this.bugList[index].isClosed) {
-        this.bugList.splice(index, 1);
-        this.closedCount--;
-        index--;
-      }
-    }
+    this.bugList = this.bugList.filter(bug => !bug.isClosed);
+  }
+
+  isEmpty(): boolean {
+    return this.newBugName && this.newBugName.length ? false : true;
   }
 }
